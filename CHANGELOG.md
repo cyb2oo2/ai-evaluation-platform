@@ -11,8 +11,8 @@ All notable changes to this project are documented in this file.
 - Cross-platform CI on Python 3.11 and 3.13.
 - Offline `verify-bundle` for trial and suite hashes, references, derived metrics, child bundles,
   and interrupted-publication residue.
-- CI discovery of every example and suite reference plus a verified deterministic evidence smoke
-  uploaded per platform and Python version.
+- CI discovery of every example and suite reference plus a verified deterministic evidence smoke;
+  per-platform artifact retention is best-effort when GitHub storage quota is available.
 
 ### Changed
 

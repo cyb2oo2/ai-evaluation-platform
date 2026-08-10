@@ -107,6 +107,10 @@ tests/                        executable protocol invariants
 .github/workflows/ci.yml      cross-platform verification gate
 ```
 
+CI treats execution and offline verification as hard gates. Retaining the verified smoke through
+GitHub artifact storage is best-effort because account-level storage quota is external to the
+evaluation result.
+
 ## Architectural boundary
 
 The protocol core has no model-provider SDK or runtime dependency. The optional HTTP adapter calls

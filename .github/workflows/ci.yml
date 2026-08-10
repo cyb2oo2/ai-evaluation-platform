@@ -16,8 +16,8 @@ jobs:
         python-version: ["3.11", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -34,7 +34,8 @@ jobs:
       - name: Run and verify deterministic evidence smoke
         run: python tools/run_ci_smoke.py
       - name: Upload verified evidence smoke
-        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
         with:
           name: evidence-smoke-${{ matrix.os }}-py${{ matrix.python-version }}
           path: runs/ci-smoke
