@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Lint
+        run: python -m ruff check src tests tools
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Compile
+        run: python -m compileall -q src tests tools
+      - name: Validate protocol examples
+        run: python tools/validate_examples.py
+      - name: Run and verify deterministic evidence smoke
+        run: python tools/run_ci_smoke.py
+      - name: Upload verified evidence smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-smoke-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: runs/ci-smoke
+          if-no-files-found: error

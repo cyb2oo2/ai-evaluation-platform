@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-evaluation-protocol"
+version = "0.1.0"
+description = "Provider-neutral protocol contracts for evidence-backed AI security evaluations."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff>=0.12,<1"]
+
+[project.scripts]
+ai-eval-protocol = "ai_eval_protocol.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

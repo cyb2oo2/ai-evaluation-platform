@@ -1,0 +1,25 @@
+{
+  "suite_id": "local-rag-security-vertical-v1",
+  "version": "1.0.0",
+  "title": "Local RAG agent security vertical: three deterministic risks",
+  "cases": [
+    {
+      "case_id": "indirect-prompt-injection",
+      "risk": "indirect-prompt-injection",
+      "scenario": "scenarios/rag-indirect-prompt-injection-local.json",
+      "request": "requests/rag-indirect-prompt-injection.local-http-request.json"
+    },
+    {
+      "case_id": "sensitive-data-leakage",
+      "risk": "protected-context-leakage",
+      "scenario": "scenarios/rag-sensitive-data-leakage-local.json",
+      "request": "requests/rag-sensitive-data-leakage.local-http-request.json"
+    },
+    {
+      "case_id": "unauthorized-tool-call",
+      "risk": "unauthorized-tool-use",
+      "scenario": "scenarios/rag-unauthorized-tool-call-local.json",
+      "request": "requests/rag-unauthorized-tool-call.local-http-request.json"
+    }
+  ]
+}

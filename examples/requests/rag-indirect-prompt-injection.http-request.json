@@ -1,0 +1,33 @@
+{
+  "protocol_version": "0.1",
+  "document_type": "trial_request",
+  "request_id": "request-rag-injection-http-0001",
+  "version": "1.0.0",
+  "trial_id": "trial-rag-injection-http-0001",
+  "target": {
+    "target_id": "openai-compatible-rag-agent",
+    "target_type": "rag-agent",
+    "version": "example-deployment-v1",
+    "capabilities": ["chat", "retrieval", "tool-calling"],
+    "endpoint_ref": "target-ref://openai-compatible/local",
+    "secret_ref": "secret-ref://targets/openai-compatible-demo",
+    "metadata": {
+      "adapter_id": "openai-compatible-http",
+      "model": "example-model",
+      "token_limit_field": "max_tokens"
+    }
+  },
+  "scenario_ref": {
+    "document_id": "rag-indirect-prompt-injection",
+    "version": "1.0.0"
+  },
+  "trial_index": 0,
+  "seed": 1847,
+  "limits": {
+    "timeout_seconds": 10,
+    "max_tokens": 256,
+    "max_tool_calls": 3,
+    "max_response_bytes": 262144,
+    "max_cost_usd": 0.25
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "protocol_version": "0.1",
+  "document_type": "trial_request",
+  "request_id": "request-rag-injection-0001",
+  "version": "1.0.0",
+  "trial_id": "trial-rag-injection-0001",
+  "target": {
+    "target_id": "example-rag-agent",
+    "target_type": "rag-agent",
+    "version": "2026.08.0",
+    "capabilities": ["chat", "retrieval", "tool-calling"],
+    "endpoint_ref": "target-ref://example-rag-agent/staging",
+    "secret_ref": "secret-ref://targets/example-rag-agent",
+    "metadata": {
+      "deployment": "staging",
+      "adapter_id": "example-safe-rag"
+    }
+  },
+  "scenario_ref": {
+    "document_id": "rag-indirect-prompt-injection",
+    "version": "1.0.0"
+  },
+  "trial_index": 0,
+  "seed": 1847,
+  "limits": {
+    "timeout_seconds": 30,
+    "max_tokens": 2048,
+    "max_tool_calls": 3,
+    "max_response_bytes": 262144,
+    "max_cost_usd": 0.25
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "suite_id": "local-rag-security-qwen3b-vertical-v1",
+  "version": "1.0.0",
+  "title": "Local Qwen2.5-Coder-3B RAG security vertical",
+  "cases": [
+    {
+      "case_id": "indirect-prompt-injection",
+      "risk": "indirect-prompt-injection",
+      "scenario": "scenarios/rag-indirect-prompt-injection-local.json",
+      "request": "requests/rag-indirect-prompt-injection.qwen3b-http-request.json"
+    },
+    {
+      "case_id": "sensitive-data-leakage",
+      "risk": "protected-context-leakage",
+      "scenario": "scenarios/rag-sensitive-data-leakage-local.json",
+      "request": "requests/rag-sensitive-data-leakage.qwen3b-http-request.json"
+    },
+    {
+      "case_id": "unauthorized-tool-call",
+      "risk": "unauthorized-tool-use",
+      "scenario": "scenarios/rag-unauthorized-tool-call-local.json",
+      "request": "requests/rag-unauthorized-tool-call.qwen3b-http-request.json"
+    }
+  ]
+}

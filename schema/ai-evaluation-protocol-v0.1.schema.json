@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-evaluation-protocol/v0.1/schema.json",
+  "title": "AI Evaluation Protocol v0.1",
+  "type": "object",
+  "required": ["protocol_version", "document_type"],
+  "properties": {
+    "protocol_version": {"const": "0.1"},
+    "document_type": {
+      "enum": ["scenario", "trial_request", "trial_trace", "evaluation_summary"]
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/$defs/scenario"},
+    {"$ref": "#/$defs/trialRequest"},
+    {"$ref": "#/$defs/trialTrace"},
+    {"$ref": "#/$defs/evaluationSummary"}
+  ],
+  "$defs": {
+    "documentRef": {
+      "type": "object",
+      "required": ["document_id", "version"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "required": ["target_id", "target_type", "version", "capabilities"],
+      "properties": {
+        "target_id": {"type": "string", "minLength": 1},
+        "target_type": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "capabilities": {"type": "array", "items": {"type": "string"}},
+        "endpoint_ref": {"type": "string"},
+        "secret_ref": {"type": "string"},
+        "metadata": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "evaluator": {
+      "type": "object",
+      "required": ["evaluator_id", "kind", "version", "implementation_ref"],
+      "properties": {
+        "evaluator_id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["deterministic", "probabilistic", "environment"]},
+        "version": {"type": "string", "minLength": 1},
+        "implementation_ref": {"type": "string", "minLength": 1},
+        "model_ref": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "protocol_version": {"const": "0.1"},
+        "document_type": {"const": "scenario"},
+        "scenario_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "risks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["taxonomy", "category", "risk_id"],
+            "properties": {
+              "taxonomy": {"type": "string", "minLength": 1},
+              "category": {"type": "string", "minLength": 1},
+              "risk_id": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          }
+        },
+        "target_requirements": {"type": "array", "items": {"type": "string"}},
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["fixture_id", "kind", "trust", "content"],
+            "properties": {
+              "fixture_id": {"type": "string", "minLength": 1},
+              "kind": {"type": "string", "minLength": 1},
+              "trust": {"enum": ["trusted", "untrusted"]},
+              "content": {"type": "string", "minLength": 1},
+              "metadata": {"type": "object"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "stimulus": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["role", "content"],
+            "properties": {
+              "role": {"enum": ["system", "user", "assistant", "tool"]},
+              "content": {"type": "string", "minLength": 1},
+              "metadata": {"type": "object"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "assertions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["assertion_id", "objective", "evaluator", "parameters"],
+            "properties": {
+              "assertion_id": {"type": "string", "minLength": 1},
+              "objective": {"type": "string", "minLength": 1},
+              "evaluator": {"$ref": "#/$defs/evaluator"},
+              "parameters": {"type": "object"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "controls": {
+          "type": "object",
+          "required": ["utility_assertion_id"],
+          "properties": {
+            "utility_assertion_id": {"type": "string", "minLength": 1},
+            "paired_scenario_ref": {"$ref": "#/$defs/documentRef"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "protocol_version", "document_type", "scenario_id", "version", "title",
+        "description", "risks", "fixtures", "stimulus", "assertions", "controls"
+      ],
+      "additionalProperties": false
+    },
+    "trialRequest": {
+      "type": "object",
+      "properties": {
+        "protocol_version": {"const": "0.1"},
+        "document_type": {"const": "trial_request"},
+        "request_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "trial_id": {"type": "string", "minLength": 1},
+        "target": {"$ref": "#/$defs/target"},
+        "scenario_ref": {"$ref": "#/$defs/documentRef"},
+        "trial_index": {"type": "integer", "minimum": 0},
+        "seed": {"type": ["integer", "null"]},
+        "limits": {
+          "type": "object",
+          "required": [
+            "timeout_seconds", "max_tokens", "max_tool_calls", "max_response_bytes",
+            "max_cost_usd"
+          ],
+          "properties": {
+            "timeout_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "max_tokens": {"type": "integer", "minimum": 1},
+            "max_tool_calls": {"type": "integer", "minimum": 0},
+            "max_response_bytes": {"type": "integer", "minimum": 1},
+            "max_cost_usd": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "protocol_version", "document_type", "request_id", "version", "trial_id", "target",
+        "scenario_ref", "trial_index", "seed", "limits"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["event_id", "sequence", "event_type", "timestamp", "payload"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "sequence": {"type": "integer", "minimum": 0},
+        "event_type": {
+          "enum": [
+            "message", "retrieval", "tool_call", "tool_result", "environment", "evaluator",
+            "error"
+          ]
+        },
+        "timestamp": {"type": "string", "minLength": 1},
+        "payload": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["artifact_id", "media_type", "sha256", "path"],
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1},
+        "media_type": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "path": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "assertionResult": {
+      "type": "object",
+      "required": ["assertion_id", "status", "evaluator", "evidence"],
+      "properties": {
+        "assertion_id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["pass", "fail", "error", "not_applicable"]},
+        "evaluator": {"$ref": "#/$defs/evaluator"},
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ref_type", "ref_id"],
+            "properties": {
+              "ref_type": {"enum": ["event", "artifact"]},
+              "ref_id": {"type": "string", "minLength": 1},
+              "selector": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "score": {"type": "number", "minimum": 0, "maximum": 1},
+        "explanation": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "trialTrace": {
+      "type": "object",
+      "properties": {
+        "protocol_version": {"const": "0.1"},
+        "document_type": {"const": "trial_trace"},
+        "trial_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "request_ref": {"$ref": "#/$defs/documentRef"},
+        "scenario_ref": {"$ref": "#/$defs/documentRef"},
+        "target": {"$ref": "#/$defs/target"},
+        "started_at": {"type": "string", "minLength": 1},
+        "completed_at": {"type": "string", "minLength": 1},
+        "status": {"enum": ["completed", "error", "cancelled", "budget_exceeded"]},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+        "assertion_results": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assertionResult"}
+        }
+      },
+      "required": [
+        "protocol_version", "document_type", "trial_id", "version", "request_ref",
+        "scenario_ref", "target", "started_at", "completed_at", "status", "events",
+        "artifacts", "assertion_results"
+      ],
+      "additionalProperties": false
+    },
+    "evaluationSummary": {
+      "type": "object",
+      "properties": {
+        "protocol_version": {"const": "0.1"},
+        "document_type": {"const": "evaluation_summary"},
+        "evaluation_id": {"type": "string", "minLength": 1},
+        "scenario_ref": {"$ref": "#/$defs/documentRef"},
+        "target": {"$ref": "#/$defs/target"},
+        "trial_refs": {"type": "array", "items": {"$ref": "#/$defs/documentRef"}},
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {"type": ["number", "null"]}
+        },
+        "generated_at": {"type": "string", "minLength": 1}
+      },
+      "required": [
+        "protocol_version", "document_type", "evaluation_id", "scenario_ref", "target",
+        "trial_refs", "metrics", "generated_at"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

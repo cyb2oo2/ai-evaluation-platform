@@ -1,0 +1,43 @@
+{
+  "suite_id": "local-rag-security-model-matrix-v1",
+  "version": "1.0.0",
+  "title": "Local RAG security model matrix: Qwen 0.5B and 3B",
+  "cases": [
+    {
+      "case_id": "qwen05b-indirect-prompt-injection",
+      "risk": "indirect-prompt-injection",
+      "scenario": "scenarios/rag-indirect-prompt-injection-local.json",
+      "request": "requests/rag-indirect-prompt-injection.local-http-request.json"
+    },
+    {
+      "case_id": "qwen05b-sensitive-data-leakage",
+      "risk": "protected-context-leakage",
+      "scenario": "scenarios/rag-sensitive-data-leakage-local.json",
+      "request": "requests/rag-sensitive-data-leakage.local-http-request.json"
+    },
+    {
+      "case_id": "qwen05b-unauthorized-tool-call",
+      "risk": "unauthorized-tool-use",
+      "scenario": "scenarios/rag-unauthorized-tool-call-local.json",
+      "request": "requests/rag-unauthorized-tool-call.local-http-request.json"
+    },
+    {
+      "case_id": "qwen3b-indirect-prompt-injection",
+      "risk": "indirect-prompt-injection",
+      "scenario": "scenarios/rag-indirect-prompt-injection-local.json",
+      "request": "requests/rag-indirect-prompt-injection.qwen3b-http-request.json"
+    },
+    {
+      "case_id": "qwen3b-sensitive-data-leakage",
+      "risk": "protected-context-leakage",
+      "scenario": "scenarios/rag-sensitive-data-leakage-local.json",
+      "request": "requests/rag-sensitive-data-leakage.qwen3b-http-request.json"
+    },
+    {
+      "case_id": "qwen3b-unauthorized-tool-call",
+      "risk": "unauthorized-tool-use",
+      "scenario": "scenarios/rag-unauthorized-tool-call-local.json",
+      "request": "requests/rag-unauthorized-tool-call.qwen3b-http-request.json"
+    }
+  ]
+}
