@@ -144,7 +144,19 @@ class LocalServerConcurrencyTests(unittest.TestCase):
             )
             time.sleep(0.05)
 
-            self.assertEqual(self._post(server.server_port), 503)
+            second = socket.create_connection(("127.0.0.1", server.server_port), timeout=2)
+            try:
+                second.sendall(
+                    b"POST /v1/chat/completions HTTP/1.1\r\n"
+                    b"Host: 127.0.0.1\r\n"
+                    b"Authorization: Bearer test-key\r\n"
+                    b"Content-Length: 100\r\n\r\n"
+                )
+                response = second.recv(4096)
+            finally:
+                second.close()
+
+            self.assertIn(b" 503 ", response)
         finally:
             first.close()
             server.shutdown()
