@@ -12,7 +12,7 @@ All notable changes to this project are documented in this file.
 - Offline `verify-bundle` for trial and suite hashes, references, derived metrics, child bundles,
   and interrupted-publication residue.
 - CI discovery of every example and suite reference plus a verified deterministic evidence smoke;
-  per-platform artifact retention is best-effort when GitHub storage quota is available.
+  one representative bundle is retained for seven days when GitHub storage quota is available.
 
 ### Changed
 
@@ -26,6 +26,8 @@ All notable changes to this project are documented in this file.
 - Local serving bounds accepted connections separately from inference concurrency and handles
   slow or reset clients without uncaught handler errors.
 - Forced output replacement restores the previous complete bundle if backup cleanup fails.
+- CI no longer creates redundant dependency caches or uploads the same smoke bundle from every
+  platform matrix entry.
 
 ### Security
 

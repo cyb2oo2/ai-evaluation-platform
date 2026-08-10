@@ -107,9 +107,10 @@ tests/                        executable protocol invariants
 .github/workflows/ci.yml      cross-platform verification gate
 ```
 
-CI treats execution and offline verification as hard gates. Retaining the verified smoke through
-GitHub artifact storage is best-effort because account-level storage quota is external to the
-evaluation result.
+CI treats execution and offline verification as hard gates. One representative Ubuntu/Python 3.13
+smoke bundle is retained for seven days on a best-effort basis; account-level artifact quota is
+external to the evaluation result. Dependency caching is disabled because this dependency-light
+project does not justify four redundant platform caches.
 
 ## Architectural boundary
 
