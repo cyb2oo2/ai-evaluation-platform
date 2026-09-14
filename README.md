@@ -1,12 +1,34 @@
 # AI Evaluation Platform
 
+[![CI](https://github.com/cyb2oo2/ai-evaluation-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/cyb2oo2/ai-evaluation-platform/actions/workflows/ci.yml)
+
+**How can an AI security evaluation produce a result that another engineer can independently verify?**
+
 An evidence-backed security evaluation platform for models, RAG applications, and tool-using
 agents. The repository currently implements the first platform contract: **AI Evaluation
 Protocol v0.1**.
 
-The protocol is deliberately provider-neutral and dependency-free. It defines how targets,
-scenarios, trials, events, assertions, evidence, and aggregate summaries are represented before
-the platform adds model adapters, workers, storage, or a user interface.
+The protocol core is provider-neutral and dependency-free. **Current stage: executable protocol,
+local trial and suite workers, an optional HTTP target adapter, and offline evidence verification.**
+Scheduling, persistent service storage, and a product UI remain future work.
+
+My contribution is the protocol and validation design, bounded execution, evidence-backed
+evaluators, atomic artifact publication, and independent bundle verification. See
+[contributions and attribution](docs/CONTRIBUTIONS.md).
+
+## Verified engineering result
+
+| Check | Result | Scope |
+| --- | --- | --- |
+| Regression tests | 77 passed | Protocol, worker, HTTP policy, suite, tamper and failure handling |
+| Example validation | 14 protocol documents + 3 suites passed | Contract and reference consistency |
+| Deterministic RAG smoke | 3/3 assertions pass; 4-artifact trial bundle verified | A registered safe fixture, not measured LLM robustness |
+| Lint and compilation | Passed | Software quality checks, not a security guarantee |
+
+These checks were rerun on September 15, 2026, with Python 3.13 on Windows. See the
+[verification record](docs/VERIFICATION.md), [CI runs](https://github.com/cyb2oo2/ai-evaluation-platform/actions),
+and [threat model](docs/THREAT_MODEL.md). Version 0.1 is a working prototype; the two-model
+matrix is a runnable configuration, not a published comparative result.
 
 ## Implemented in v0.1
 
@@ -33,13 +55,35 @@ the platform adds model adapters, workers, storage, or a user interface.
 
 ## Quick start
 
+Requires **Python 3.11+**. Create and activate a virtual environment, then install before
+running the CLI. Installation needs package access; the smoke itself uses no model, GPU,
+credentials, or paid API.
+
+```bash
+git clone https://github.com/cyb2oo2/ai-evaluation-platform.git
+cd ai-evaluation-platform
+python -m venv .venv
+```
+
+Activate with `.venv\Scripts\Activate.ps1` in PowerShell or `source .venv/bin/activate`
+on Linux/macOS:
+
+```bash
+python -m pip install -e ".[dev]"
+python tools/run_ci_smoke.py
+python -m ai_eval_protocol verify-bundle runs/ci-smoke
+```
+
+Expected: `assertion_statuses: ["pass", "pass", "pass"]`, `artifact_count: 4`, and
+`valid trial bundle`. Outputs are under `runs/ci-smoke/`; this command refreshes that
+demo directory on repeated runs. Full checks:
+
 ```powershell
 python -m ai_eval_protocol validate examples/scenarios/rag-indirect-prompt-injection.json
 python -m ai_eval_protocol validate examples/requests/rag-indirect-prompt-injection.request.json
 python -m ai_eval_protocol validate examples/trials/rag-indirect-prompt-injection.blocked.json
 python -m ai_eval_protocol validate examples/summaries/rag-indirect-prompt-injection.summary.json
 python -m ai_eval_protocol fingerprint examples/trials/rag-indirect-prompt-injection.blocked.json
-python -m pip install -e ".[dev]"
 python -m ruff check src tests tools
 python -m unittest discover -s tests -v
 python tools/validate_examples.py
