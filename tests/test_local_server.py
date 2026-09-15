@@ -4,7 +4,6 @@ import http.client
 import json
 import socket
 import threading
-import time
 import unittest
 
 from tools.local_openai_server import (
@@ -91,6 +90,18 @@ class _ErrorCountingServer(LocalEvaluationServer):
         self.handler_error_count += 1
 
 
+class _AdmissionObservedServer(LocalEvaluationServer):
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        self.admitted = threading.Event()
+        super().__init__(*args, **kwargs)  # type: ignore[arg-type]
+
+    def process_request_thread(
+        self, request: socket.socket, client_address: tuple[object, ...]
+    ) -> None:
+        self.admitted.set()
+        super().process_request_thread(request, client_address)
+
+
 class LocalServerConcurrencyTests(unittest.TestCase):
     def test_busy_server_rejects_instead_of_queueing_unbounded_work(self) -> None:
         model = _BlockingModel()
@@ -123,13 +134,13 @@ class LocalServerConcurrencyTests(unittest.TestCase):
             server_thread.join(timeout=2)
 
     def test_connection_limit_rejects_before_reading_another_body(self) -> None:
-        server = LocalEvaluationServer(
+        server = _AdmissionObservedServer(
             ("127.0.0.1", 0),
             model=_ImmediateModel(),  # type: ignore[arg-type]
             api_key="test-key",
             limits=ServerLimits(
                 max_connections=1,
-                request_read_timeout_seconds=1,
+                request_read_timeout_seconds=5,
             ),
         )
         server_thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -142,16 +153,12 @@ class LocalServerConcurrencyTests(unittest.TestCase):
                 b"Authorization: Bearer test-key\r\n"
                 b"Content-Length: 100\r\n\r\n{"
             )
-            time.sleep(0.05)
+            self.assertTrue(server.admitted.wait(timeout=2))
 
             second = socket.create_connection(("127.0.0.1", server.server_port), timeout=2)
             try:
-                second.sendall(
-                    b"POST /v1/chat/completions HTTP/1.1\r\n"
-                    b"Host: 127.0.0.1\r\n"
-                    b"Authorization: Bearer test-key\r\n"
-                    b"Content-Length: 100\r\n\r\n"
-                )
+                # Admission rejects before any request bytes are read. Sending
+                # bytes while the server closes can produce a Windows TCP reset.
                 response = second.recv(4096)
             finally:
                 second.close()
